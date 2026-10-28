@@ -10,6 +10,7 @@ const router = Router();
 const authRateLimit = rateLimiter(10, 60); // 10 requests / minute / IP
 const userRateLimit = rateLimiter(20, 60, 'user'); // 20 requests / minute / user
 
+
 router.post('/signup', authRateLimit, async (req, res) => {
     const { name, email, password } = req.body;
 
@@ -46,6 +47,8 @@ router.post('/signup', authRateLimit, async (req, res) => {
     res.status(201).json({ user: publicUser(user) });
 });
 
+
+
 router.post('/login', authRateLimit, async (req, res) => {
     const { email, password } = req.body;
 
@@ -69,9 +72,13 @@ router.post('/login', authRateLimit, async (req, res) => {
     res.json({ user: publicUser(user) });
 });
 
+
+
 router.get('/me', requireAuth, userRateLimit, (req, res) => {
     res.json({ user: publicUser(req.user) });
 });
+
+
 
 router.post('/logout', requireAuth, userRateLimit, async (req, res) => {
     const remainingSeconds = req.tokenExpiry - Math.floor(Date.now() / 1000);
@@ -85,5 +92,6 @@ router.post('/logout', requireAuth, userRateLimit, async (req, res) => {
     clearAuthCookie(res);
     res.json({ message: 'Logged out successfully' });
 });
+
 
 export default router;
