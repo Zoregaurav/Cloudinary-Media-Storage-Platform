@@ -3,11 +3,14 @@ import { createHash } from 'node:crypto';
 import User from '../models/User.js';
 import { redisClient } from '../config/redis.js';
 
+
+
 // Hashing means we never store the actual JWT inside Redis.
 export function tokenBlocklistKey(token) {
     const hash = createHash('sha256').update(token).digest('hex');
     return `blocked_token:${hash}`;
 }
+
 
 export async function requireAuth(req, res, next) {
     const token = req.cookies.token;

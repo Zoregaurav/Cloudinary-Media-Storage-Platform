@@ -1,35 +1,17 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect } from 'react';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
+import { useAuthStore } from './store/useAuthStore.js';
+import ProtectedRoute from './components/ProtectedRoute.jsx';
+import AuthPage from './pages/AuthPage.jsx';
+import Dashboard from './pages/Dashboard.jsx';
 
-function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+export default function App() {
+  const restore = useAuthStore((s) => s.restore);
+  useEffect(() => { restore(); }, [restore]);
+  return <BrowserRouter><Routes>
+    <Route path="/login" element={<AuthPage mode="login" />} />
+    <Route path="/signup" element={<AuthPage mode="signup" />} />
+    <Route element={<ProtectedRoute />}><Route path="/" element={<Dashboard />} /></Route>
+    <Route path="*" element={<Navigate to="/" replace />} />
+  </Routes></BrowserRouter>;
 }
-
-export default App

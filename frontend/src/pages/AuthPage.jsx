@@ -33,7 +33,7 @@ export default function AuthPage({ mode }) {
     <section className="flex min-h-screen flex-col px-6 py-8 sm:px-12 lg:px-20">
       <Brand />
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center py-14">
-        <div className="mb-3 inline-flex w-fit items-center rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">STUDENT STARTER PROJECT</div>
+        <div className="mb-3 inline-flex w-fit items-center rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">YOUR MEDIA WORKSPACE</div>
         <h1 className="text-4xl font-bold tracking-tight text-slate-950">{signup ? 'Create your account' : 'Welcome back'}</h1>
         <p className="mt-3 text-slate-500">{signup ? 'Sign up to start building your media upload application.' : 'Sign in to continue to your workspace.'}</p>
         <form onSubmit={submit} className="mt-9 space-y-5">
@@ -49,7 +49,8 @@ export default function AuthPage({ mode }) {
     </section>
     <aside className="relative hidden overflow-hidden bg-[#17224b] p-14 text-white lg:flex lg:flex-col lg:justify-center">
       <div className="absolute -right-32 -top-24 size-[450px] rounded-full bg-indigo-500/25 blur-3xl"/><div className="absolute -bottom-44 -left-32 size-[450px] rounded-full bg-cyan-500/15 blur-3xl"/>
-      <div className="relative mx-auto w-full max-w-lg"><div className="mb-10 flex items-center gap-3 text-sm font-medium text-indigo-200"><span className="h-px w-12 bg-indigo-400"/>YOUR NEXT PROJECT</div><h2 className="text-5xl font-bold leading-tight tracking-tight">Build something <span className="text-indigo-300">real.</span></h2><p className="mt-6 max-w-md text-lg leading-8 text-slate-300">Your authentication is ready. Next, you’ll learn to upload, manage and stream images and videos with Cloudinary.</p><div className="mt-12 grid grid-cols-2 gap-4"><Feature icon={ImagePlus} title="Image upload" desc="Coming in class"/><Feature icon={Video} title="Video upload" desc="Coming in class"/></div></div>
+      <div className="relative mx-auto w-full max-w-lg"><div className="mb-10 flex items-center gap-3 text-sm font-medium text-indigo-200"><span className="h-px w-12 bg-indigo-400"/>YOUR NEXT PROJECT</div><h2 className="text-5xl font-bold leading-tight tracking-tight">Build something <span className="text-indigo-300">real.</span></h2><p className="mt-6 max-w-md text-lg leading-8 text-slate-300">Upload, organize, and access your images and videos
+            through one seamless cloud storage experience.</p><div className="mt-12 grid grid-cols-2 gap-4"><Feature icon={ImagePlus} title="Image upload" desc="Coming in class"/><Feature icon={Video} title="Video upload" desc="Coming in class"/></div></div>
     </aside>
   </main>;
 }
