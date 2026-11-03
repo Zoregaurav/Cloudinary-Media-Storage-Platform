@@ -7,6 +7,8 @@ import Media from "../models/Media.js";
 
 const router = express.Router();
 
+
+//view video or image
 router.get("/media", requireAuth, async (req, res) => {
     try {
         const media = await Media.find({ userId: req.user._id, status: "completed" })
@@ -20,6 +22,8 @@ router.get("/media", requireAuth, async (req, res) => {
         res.status(500).json({ message: "Unable to load media" });
     }
 });
+
+
 
 router.post("/signature", requireAuth, async (req, res) => {
     try {
@@ -49,6 +53,7 @@ router.post("/signature", requireAuth, async (req, res) => {
         // 3. Generate a unique upload ID
         const uploadId = randomUUID();
 
+
         // 4. Create pending upload record in MongoDB
         const media = await Media.create({
             userId: req.user._id,
@@ -59,8 +64,11 @@ router.post("/signature", requireAuth, async (req, res) => {
             status: "pending"
         });
 
+
+
         // 5. Generate Cloudinary signature
         const timestamp = Math.floor(Date.now() / 1000);
+
 
         const paramsToSign = {
             timestamp: timestamp,
@@ -69,10 +77,13 @@ router.post("/signature", requireAuth, async (req, res) => {
             notification_url: process.env.CLOUDINARY_WEBHOOK_URL
         };
 
+
         const signature = cloudinary.utils.api_sign_request(
             paramsToSign,
             process.env.CLOUDINARY_API_SECRET
         );
+
+
 
         // 6. Return upload authorization
         res.status(200).json({
@@ -94,5 +105,7 @@ router.post("/signature", requireAuth, async (req, res) => {
         });
     }
 });
+
+
 
 export default router;

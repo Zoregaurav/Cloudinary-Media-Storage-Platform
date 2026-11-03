@@ -7,6 +7,8 @@ import cookieParser from "cookie-parser";
 import { connectDB } from "./config/db.js";
 import { connectRedis } from "./config/redis.js";
 import authRouter from "./routes/auth.routes.js";
+import uploadRouter from "./routes/upload.routes.js";
+import webhookRouter from "./routes/webhook.routes.js";
 
 const app = express();
 
@@ -16,6 +18,14 @@ app.use(cors({
     origin: "http://localhost:5173",
     credentials: true
 }));
+
+
+
+app.use(  
+    "/api/webhooks",
+    express.raw({ type: "application/json" }),
+    webhookRouter
+);
 
 
 // 2. Middleware
@@ -31,6 +41,7 @@ app.get("/api/health", (req, res) => {
 });
 
 app.use("/api/auth", authRouter);
+app.use("/api/uploads", uploadRouter);
 
 
 // 4. Handle Unknown Routes
