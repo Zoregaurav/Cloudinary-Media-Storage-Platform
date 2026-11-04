@@ -1,4 +1,3 @@
-
 import express from "express";
 import { createHash, timingSafeEqual } from "node:crypto";
 
@@ -9,41 +8,56 @@ const router = express.Router();
 
 
 // 1. Verify Cloudinary webhook signature
+// Cloudinary signs with SHA-1 (40 hex chars) or SHA-256 (64 hex chars),
+// depending on the account's "Signature algorithm" setting.
 function verifyWebhook(req) {
     const signature = req.headers["x-cld-signature"];
     const timestamp = req.headers["x-cld-timestamp"];
 
+    if (typeof signature !== "string" || typeof timestamp !== "string") {
+        console.log("Webhook: missing signature headers");
+        return false;
+    }
 
-    if (typeof signature !== "string" ||
-        typeof timestamp !== "string") {
+    if (!Buffer.isBuffer(req.body)) {
+        console.log("Webhook: body is not a Buffer. content-type =", req.headers["content-type"]);
         return false;
     }
 
     const webhookTime = Number(timestamp);
     const currentTime = Math.floor(Date.now() / 1000);
 
-
     // Reject old or future-dated notifications
     if (
         !Number.isSafeInteger(webhookTime) ||
         Math.abs(currentTime - webhookTime) > 7200
     ) {
+        console.log("Webhook: timestamp outside allowed window");
+        return false;
+    }
+
+    let algorithm;
+    if (/^[a-f0-9]{40}$/i.test(signature)) {
+        algorithm = "sha1";
+    } else if (/^[a-f0-9]{64}$/i.test(signature)) {
+        algorithm = "sha256";
+    } else {
+        console.log("Webhook: unexpected signature length", signature.length);
         return false;
     }
 
     const rawBody = req.body.toString("utf8");
 
-    const expectedSignature = createHash("sha1")
-        .update(
-            rawBody +
-            timestamp +
-            process.env.CLOUDINARY_API_SECRET
-        )
+    const expectedSignature = createHash(algorithm)
+        .update(rawBody + timestamp + process.env.CLOUDINARY_API_SECRET)
         .digest("hex");
 
-    if (!/^[a-f0-9]{40}$/i.test(signature)) {
-        return false;
-    }
+    // Safe to log: only the first 10 characters
+    console.log(
+        "Webhook algo:", algorithm,
+        "| received:", signature.slice(0, 10),
+        "| expected:", expectedSignature.slice(0, 10)
+    );
 
     return timingSafeEqual(
         Buffer.from(signature, "hex"),
@@ -84,7 +98,6 @@ router.post("/cloudinary", async (req, res) => {
         }
 
         // 3. Retrieve the uploaded asset directly from Cloudinary.
-        // We request context because our uploadId is stored there.
         const asset = await cloudinary.api.resource(
             data.public_id,
             {
@@ -112,11 +125,12 @@ router.post("/cloudinary", async (req, res) => {
         }
 
         // 5. Update the matching MongoDB record
+        // NOTE: `folder` is no longer matched against asset.asset_folder,
+        // because that field is missing/different in fixed folder mode.
         const media = await Media.findOneAndUpdate(
             {
                 uploadId: uploadId,
                 status: "pending",
-                folder: asset.asset_folder,
                 resourceType: asset.resource_type
             },
             {
